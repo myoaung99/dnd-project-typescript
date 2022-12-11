@@ -155,8 +155,11 @@ class ProjectList {
       "project-list"
     )! as HTMLTemplateElement;
     this.containerElement = document.getElementById("app")! as HTMLDivElement;
+
+    //* initial empty projects
     this.assignedProjects = [];
 
+    //* clone temple tag's content as Node
     const importedElement = document.importNode(
       this.templateElement.content,
       true
@@ -167,11 +170,21 @@ class ProjectList {
     this.element.id = `${this.type}-projects`;
 
     projectState.addListener((projects: Project[]) => {
-      this.assignedProjects = projects;
+      let relaventProject: Project[] = [];
+
+      //* filter out the projects based on status props
+      relaventProject = projects.filter((project) => {
+        if (this.type === "active") {
+          return project.status === ProjectStatus.Active;
+        }
+        return project.status === ProjectStatus.Finished;
+      });
+      this.assignedProjects = relaventProject;
 
       //* clear previous li nodes
       document.querySelector(`#${this.type}-projects-list`)!.innerHTML = "";
 
+      //* append the list item to ul
       for (const projectItem of this.assignedProjects) {
         const listItem = document.createElement("li");
         listItem.textContent = projectItem.title;
