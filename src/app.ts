@@ -142,7 +142,7 @@ const projectState = ProjectState.getInstance();
 
 //* base project component
 //* abstract class cannot create instance
-//* abstract class purpose is for extending
+//* one of abstract class's job is for extending
 abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   templateElement: HTMLTemplateElement;
   containerElement: T;
@@ -183,6 +183,25 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  private project: Project;
+  constructor(containerId: string, project: Project) {
+    super("single-project", containerId, false, project.id);
+    this.project = project;
+
+    this.renderContent();
+  }
+
+  configure(): void {}
+
+  renderContent(): void {
+    this.element.querySelector("h2")!.textContent = this.project.title;
+    this.element.querySelector("h3")!.textContent =
+      this.project.numberOfPeople.toString() + " team members";
+    this.element.querySelector("p")!.textContent = this.project.description;
+  }
+}
+
 class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   assignedProjects: Project[];
 
@@ -204,17 +223,7 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
       });
       this.assignedProjects = relevantProject;
 
-      //* clear previous li nodes
-      document.querySelector(`#${this.type}-projects-list`)!.innerHTML = "";
-
-      //* append the list item to ul
-      for (const projectItem of this.assignedProjects) {
-        const listItem = document.createElement("li");
-        listItem.textContent = projectItem.title;
-        document
-          .querySelector(`#${this.type}-projects-list`)!
-          .appendChild(listItem);
-      }
+      this.renderProject();
     });
 
     this.renderContent();
@@ -227,6 +236,16 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     this.element.querySelector("h2")!.textContent = (
       this.type + " projects"
     ).toUpperCase();
+  }
+
+  private renderProject(): void {
+    //* clear previous li nodes
+    document.querySelector(`#${this.type}-projects-list`)!.innerHTML = "";
+
+    //* append the list item to ul
+    for (const projectItem of this.assignedProjects) {
+      new ProjectItem(`${this.type}-projects-list`, projectItem);
+    }
   }
 }
 
