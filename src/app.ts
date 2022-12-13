@@ -192,12 +192,20 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
+  get members() {
+    if (this.project.numberOfPeople === 1) {
+      return " member.";
+    }
+    return " members.";
+  }
+
   configure(): void {}
 
   renderContent(): void {
-    this.element.querySelector("h2")!.textContent = this.project.title;
+    this.element.querySelector("h2")!.textContent =
+      this.project.title.toUpperCase();
     this.element.querySelector("h3")!.textContent =
-      this.project.numberOfPeople.toString() + " team members";
+      "Assigned " + this.project.numberOfPeople.toString() + this.members;
     this.element.querySelector("p")!.textContent = this.project.description;
   }
 }
@@ -241,10 +249,10 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
   private renderProject(): void {
     //* clear previous li nodes
     document.querySelector(`#${this.type}-projects-list`)!.innerHTML = "";
-
+    const containerId = this.element.querySelector("ul")!.id;
     //* append the list item to ul
     for (const projectItem of this.assignedProjects) {
-      new ProjectItem(`${this.type}-projects-list`, projectItem);
+      new ProjectItem(containerId, projectItem);
     }
   }
 }
